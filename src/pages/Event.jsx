@@ -4,12 +4,26 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 function Event() {
   const [events, setEvents] = useState([]);
+  const [showModal,setShowModal] = useState(false)
   const [form, setFrom] = useState({
     name: "",
     date: "",
     location: "",
     available_seats: 0,
   });
+
+  const [selectdEvent,setSelectedEvent] = useState({
+    _id:"",
+    name:"",
+    date:"",
+    location:"",
+    available_seats:""
+});
+
+const openUpdateModal = (event)=>{
+  setSelectedEvent(event)
+  setShowModal(true)
+};
 
   const fetchEvent = async () => {
     const response = await axios.get("/events/all");
@@ -21,12 +35,29 @@ function Event() {
     fetchEvent();
   };
 
+  const deleteEvent = async (id) => {
+    if (window.confirm("Are you sure to delete this event?")) {
+      await axios.delete(`/events/delete/${id}`);
+      fetchEvent();
+    }
+  };
+
+  const updateEvent = async (id) => {
+    try {
+      await axios.put(`/events/update/${selectdEvent._id}`,selectdEvent);
+      setShowModal(false);
+      fetchEvent();
+    } catch (error) {
+      alert('Update Fail');
+    }
+  };
+
   useEffect(() => {
     fetchEvent();
   }, []);
 
   return (
-    <div>
+    <div className="container">
       <h2>All Event</h2>
       <table class="table">
         <thead>
@@ -46,13 +77,80 @@ function Event() {
               <td>{event.location}</td>
               <td>{event.available_seats}</td>
               <td>
-                <a class="btn btn-warning me-3">Update</a>
-                <a class="btn btn-danger">Delete</a>
+                <a onClick={() => openUpdateModal(event)} class="btn btn-warning me-3">Update</a>
+                <a onClick={() => deleteEvent(event._id)} class="btn btn-danger">Delete</a>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {showModal && (
+          <div className="modal show d-block" tabIndex="-1" role="dialog">
+              <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h4 className="modal-title">Update Event</h4>
+                  </div>
+                  <div className="modal-body">
+                    <input 
+                    type="text"
+                    placeholder="Event Name"
+                    className="form-control"
+                    value={selectdEvent.name}
+                    onChange={
+                      e => setSelectedEvent(
+                        { ...selectdEvent, name: e.target.value }
+                      )} 
+                    />
+                  </div>
+                  <div className="modal-body">
+                    <input 
+                    type="date"
+                    placeholder="Select Date"
+                    className="form-control"
+                    value={selectdEvent.date}
+                    onChange={
+                      e => setSelectedEvent(
+                        { ...selectdEvent, date: e.target.value }
+                      )} 
+                    />
+                  </div>
+                  <div className="modal-body">
+                    <input 
+                    type="text"
+                    placeholder="Location"
+                    className="form-control"
+                    value={selectdEvent.location}
+                    onChange={
+                      e => setSelectedEvent(
+                        { ...selectdEvent, location: e.target.value }
+                      )} 
+                    />
+                  </div>
+                  <div className="modal-body">
+                    <input 
+                    type="number"
+                    placeholder="Available Seats"
+                    className="form-control"
+                    value={selectdEvent.available_seats}
+                    onChange={
+                      e => setSelectedEvent(
+                        { ...selectdEvent, available_seats: e.target.value }
+                      )} 
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button type="button" className="btn btn-primary" 
+                    onClick={() => updateEvent(selectdEvent._id)}>Update</button>
+                    <button type="button" className="btn btn-secondary" 
+                    onClick={() => setShowModal(false)}>Close</button>
+                  </div>
+                </div>
+              </div>
+          </div>
+        )
+      }
 
       <div className="card">
         <div className="card-header">
@@ -85,7 +183,9 @@ function Event() {
               setFrom({ ...form, available_seats: e.target.value })
             }
           />
-          <button class="btn btn-outline-success mt-2" onClick={createEvent}>Create</button>
+          <button class="btn btn-outline-success mt-2" onClick={createEvent}>
+            Create
+          </button>
         </div>
       </div>
     </div>

@@ -57,9 +57,9 @@ const openUpdateModal = (event)=>{
   }, []);
 
   return (
-    <div className="container">
+    <div className="container MB-4">
       <h2>All Event</h2>
-      <table class="table">
+      <table class="table mb-3">
         <thead>
           <tr>
             <th>Name</th>
@@ -152,7 +152,7 @@ const openUpdateModal = (event)=>{
         )
       }
 
-      <div className="card">
+      <div className="card mb-5">
         <div className="card-header">
           <h3 class="card-title">Create Event</h3>
         </div>

@@ -29,10 +29,19 @@ function Registration() {
       return;
     }
     try {
-      const response = await axios.post("/registrations/create", {
-        user_name: userName,
-        event_id: selectEventId,
-      });
+      const response = await axios.post(
+        "/registrations/create",
+        {
+          user_name: userName,
+          event_id: selectEventId,
+        },
+        {
+          header: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
       alert("Registration successful");
       setUserName("");
       setSelectEventId("");
